@@ -1,5 +1,6 @@
 package dtu.example.steps;
 
+import dtu.service.PaymentException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -23,8 +24,7 @@ public class PaymentService {
         this.base = client.target(baseUrl);
     }
 
-
-    public boolean pay(Integer amount, String customerId, String merchantId) {
+    public boolean pay(Integer amount, String customerId, String merchantId) throws PaymentException{
         Payment payment = new Payment();
         payment.setAmount(amount);
         payment.setCustomer(customerId);
@@ -33,14 +33,11 @@ public class PaymentService {
         try (Response r = base.request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(payment, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == Response.Status.CREATED.getStatusCode()) {
-                lastErrorMessage = null;
                 return true;
             } else if (r.getStatus() == Response.Status.BAD_REQUEST.getStatusCode()) {
-                String errorMessage = r.readEntity(String.class);
-                lastErrorMessage = errorMessage;
-                return false;
+                throw new PaymentException(r.readEntity(String.class));
             }
-            throw new RuntimeException("Failed to process payment: HTTP " + r.getStatus());
+            throw new PaymentException("Unexpected response: " + r.getStatus());
         }
     }
 

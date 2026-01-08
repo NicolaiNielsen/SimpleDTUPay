@@ -25,7 +25,7 @@ public class PaymentService {
         this.base = client.target(baseUrl);
     }
 
-    public boolean pay(Integer amount, String customerId, String merchantId)  {
+    public boolean pay(Integer amount, String customerId, String merchantId) throws PaymentException {
         Payment payment = new Payment();
         payment.setAmount(amount);
         payment.setCustomerId(customerId);
@@ -37,7 +37,7 @@ public class PaymentService {
                 lastErrorMessage = null;
                 return true;
             } else {
-                return false;
+                throw new PaymentException(r.readEntity(String.class));
             }
 
         }

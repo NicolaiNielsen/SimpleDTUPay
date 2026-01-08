@@ -11,6 +11,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import dtu.client.service.CustomerServiceClient;
 import dtu.service.MerchantService;
+import dtu.service.PaymentException;
 import dtu.service.PaymentService;
 import java.util.Collection;
 
@@ -20,10 +21,11 @@ public class SimpleDTUPaySteps {
     private String customerId, merchantId;
     private boolean successful = false;
     private Collection<Payment> allPayments;
+    private PaymentException exception;
 
     CustomerServiceClient customerService = new CustomerServiceClient();
     MerchantService merchantService = new MerchantService();
-    PaymentService PaymentService = new PaymentService();
+    PaymentService paymentService = new PaymentService();
 
     @Given("a customer with name {string}")
     public void aCustomerWithName(String name) {
@@ -49,8 +51,13 @@ public class SimpleDTUPaySteps {
 
     @When("the merchant initiates a payment for {int} kr by the customer")
     public void theMerchantInitiatesAPaymentForKrByTheCustomer(Integer amount) {
-            successful = PaymentService.pay(amount, customerId, merchantId);
 
+        try {
+            successful = paymentService.pay(amount, customerId, merchantId);
+        } catch (PaymentException e) {
+            exception = e;
+            successful = false;
+        }
     }
 
     @Then("the payment is successful")
@@ -74,21 +81,25 @@ public class SimpleDTUPaySteps {
 
     @Given("a successful payment of {string} kr from the customer to the merchant")
     public void aSuccessfulPaymentOfKrFromTheCustomerToTheMerchant(String amount) {
-
-            successful = PaymentService.pay(Integer.parseInt(amount), customerId, merchantId);
-
+        try {
+            successful = paymentService.pay(Integer.parseInt(amount), customerId, merchantId);
+        } catch (PaymentException e) {
+            exception = e;
+            successful = false;
+        }
     }
 
     @When("the manager asks for a list of payments")
     public void theManagerAsksForAListOfPayments() {
-        allPayments = PaymentService.findAll();
+        allPayments = paymentService.findAll();
         System.out.println(allPayments);
     }
 
     @Then("the list contains a payments where customer {string} paid {string} kr to merchant {string}")
     public void theListContainsAPaymentsWhereCustomerPaidKrToMerchant(String string, String string2, String string3) {
         for (Payment payment : allPayments) {
-            if (payment.getCustomerId().equals(customerId) && payment.getMerchantId().equals(merchantId) && payment.getAmount().equals(Integer.parseInt(string2))) {
+            if (payment.getCustomerId().equals(customerId) && payment.getMerchantId().equals(merchantId)
+                    && payment.getAmount().equals(Integer.parseInt(string2))) {
                 return;
             }
         }
@@ -97,7 +108,12 @@ public class SimpleDTUPaySteps {
 
     @When("the merchant initiates a payment for {string} kr using customer id {string}")
     public void theMerchantInitiatesAPaymentForKrUsingCustomerId(String amount, String customerid) {
-        successful = PaymentService.pay(Integer.parseInt(amount), customerid, merchantId);
+        try {
+            successful = paymentService.pay(Integer.parseInt(amount), customerid, merchantId);
+        } catch (PaymentException e) {
+            exception = e;
+            successful = false;
+        }
     }
 
     @Then("the payment is not successful")
@@ -107,9 +123,9 @@ public class SimpleDTUPaySteps {
 
     @Then("an error message is returned saying {string}")
     public void anErrorMessageIsReturnedSaying(String expectedMessage) {
-
+        System.out.println(exception);
+        assertTrue(exception != null);
+        assertTrue(exception instanceof PaymentException);
+        assertEquals(expectedMessage, exception.getMessage());
     }
-
-
-
 }
