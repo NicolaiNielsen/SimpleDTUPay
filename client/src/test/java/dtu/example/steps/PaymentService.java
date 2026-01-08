@@ -1,0 +1,51 @@
+package dtu.example.steps;
+
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+public class PaymentService {
+
+    private final Client client;
+    private final WebTarget base;
+    private String lastErrorMessage;
+
+
+    public PaymentService() {
+        this("http://localhost:8080/payments");
+    }
+
+    public PaymentService(String baseUrl) {
+        this.client = ClientBuilder.newClient();
+        this.base = client.target(baseUrl);
+    }
+
+
+    public boolean pay(Integer amount, String customerId, String merchantId) {
+        Payment payment = new Payment();
+        payment.setAmount(amount);
+        payment.setCustomer(customerId);
+        payment.setMerchantId(merchantId);
+
+        try (Response r = base.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(payment, MediaType.APPLICATION_JSON))) {
+            if (r.getStatus() == Response.Status.CREATED.getStatusCode()) {
+                lastErrorMessage = null;
+                return true;
+            } else if (r.getStatus() == Response.Status.BAD_REQUEST.getStatusCode()) {
+                String errorMessage = r.readEntity(String.class);
+                lastErrorMessage = errorMessage;
+                return false;
+            }
+            throw new RuntimeException("Failed to process payment: HTTP " + r.getStatus());
+        }
+    }
+
+    public String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
+
+}
