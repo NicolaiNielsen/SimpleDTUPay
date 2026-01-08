@@ -1,9 +1,8 @@
-package dtu.client.service;
+package dtu.service;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
-import dtu.Customer;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import dtu.model.Customer;
+
 public class CustomerServiceClient {
 
     private final Client client;
@@ -20,7 +21,7 @@ public class CustomerServiceClient {
 
 
     public CustomerServiceClient() {
-        this("http://localhost:8080/customer");
+        this("http://localhost:8008/customer");
     }
 
     public CustomerServiceClient(String baseUrl) {
@@ -28,9 +29,11 @@ public class CustomerServiceClient {
         this.base = client.target(baseUrl);
     }
 
-    public String createCustomer(String name) {
+    public String createCustomer(String name, String lastName, String CPR) {
         Customer customer = new Customer();
-        customer.setName(name);
+        customer.setFirstName(name);
+        customer.setLastName(lastName);
+        customer.setCPR(CPR);
 
         try (Response r = base.request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(customer, MediaType.APPLICATION_JSON))) {
@@ -46,6 +49,7 @@ public class CustomerServiceClient {
                 .request(MediaType.APPLICATION_JSON)
                 .get()) {
             if (r.getStatus() == Response.Status.OK.getStatusCode()) {
+                System.out.println(r.getStatus());
                 return Optional.ofNullable(r.readEntity(Customer.class));
             }
             return Optional.empty();
@@ -61,12 +65,4 @@ public class CustomerServiceClient {
             throw new RuntimeException("Failed to fetch customers: HTTP " + r.getStatus());
         }
     }
-
-
-    public static void main(String[] args) {
-        CustomerServiceClient service = new CustomerServiceClient();
-        service.createCustomer("Test Customer");
-        service.getCustomerById("36dc9fac-c8aa-41aa-bd44-33803e4ff4ac");
-    }
-
 }

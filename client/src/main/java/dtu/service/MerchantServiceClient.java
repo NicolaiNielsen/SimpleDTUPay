@@ -1,8 +1,8 @@
 package dtu.service;
 import java.util.Optional;
 
-import dtu.Customer;
-import dtu.Merchant;
+import dtu.model.Customer;
+import dtu.model.Merchant;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -10,7 +10,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-public class MerchantService {
+public class MerchantServiceClient {
     
 
     
@@ -18,11 +18,11 @@ public class MerchantService {
     private final WebTarget base; 
 
 
-    public MerchantService() {
+    public MerchantServiceClient() {
         this("http://localhost:8080/merchants");
     }
 
-    public MerchantService(String baseUrl) {
+    public MerchantServiceClient(String baseUrl) {
         this.client = ClientBuilder.newClient();
         this.base = client.target(baseUrl);
     }

@@ -1,4 +1,4 @@
-package dtu;
+package dtu.model;
 
 public class Payment {
     private String id;

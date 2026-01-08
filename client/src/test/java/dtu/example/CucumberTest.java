@@ -1,6 +1,7 @@
 package dtu.example;
 
 
+import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.SNIPPET_TYPE_PROPERTY_NAME;
 
@@ -12,6 +13,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite()
 @IncludeEngines("cucumber")
 @SelectDirectories("features")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "dtu.example.steps")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = SNIPPET_TYPE_PROPERTY_NAME, value = "camelcase")
 public class CucumberTest {

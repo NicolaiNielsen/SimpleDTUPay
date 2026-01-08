@@ -3,16 +3,16 @@ package dtu.example.steps;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import dtu.Customer;
-import dtu.Merchant;
-import dtu.Payment;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import dtu.client.service.CustomerServiceClient;
-import dtu.service.MerchantService;
+import dtu.model.Customer;
+import dtu.model.Merchant;
+import dtu.model.Payment;
+import dtu.service.CustomerServiceClient;
+import dtu.service.MerchantServiceClient;
 import dtu.service.PaymentException;
-import dtu.service.PaymentService;
+import dtu.service.PaymentServiceClient;
 import java.util.Collection;
 
 public class SimpleDTUPaySteps {
@@ -22,14 +22,15 @@ public class SimpleDTUPaySteps {
     private boolean successful = false;
     private Collection<Payment> allPayments;
     private PaymentException exception;
+    private String customerID;
 
     CustomerServiceClient customerService = new CustomerServiceClient();
-    MerchantService merchantService = new MerchantService();
-    PaymentService paymentService = new PaymentService();
+    MerchantServiceClient merchantService = new MerchantServiceClient();
+    PaymentServiceClient paymentService = new PaymentServiceClient();
 
     @Given("a customer with name {string}")
     public void aCustomerWithName(String name) {
-        customerId = customerService.createCustomer(name);
+        customerId = customerService.createCustomer(name, "LastName", "123456-7890");
     }
 
     @Given("the customer is registered with Simple DTU Pay")
@@ -67,7 +68,7 @@ public class SimpleDTUPaySteps {
 
     @Given("a customer with name {string}, who is registered with Simple DTU Pay")
     public void aCustomerWithNameWhoIsRegisteredWithSimpleDTUPay(String name) {
-        customerId = customerService.createCustomer(name);
+        customerId = customerService.createCustomer(name, "LastName", "123456-7890");
         customer = customerService.getCustomerById(customerId).orElse(null);
         assertEquals(customerId, customer.getId());
     }

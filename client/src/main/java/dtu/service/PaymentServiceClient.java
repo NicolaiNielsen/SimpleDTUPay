@@ -3,7 +3,7 @@ package dtu.service;
 import java.util.Collection;
 import java.util.Optional;
 
-import dtu.Payment;
+import dtu.model.Payment;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -11,16 +11,16 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-public class PaymentService {
+public class PaymentServiceClient {
     private final Client client;
     private final WebTarget base;
     private String lastErrorMessage;
 
-    public PaymentService() {
+    public PaymentServiceClient() {
         this("http://localhost:8008/payments");
     }
 
-    public PaymentService(String baseUrl) {
+    public PaymentServiceClient(String baseUrl) {
         this.client = ClientBuilder.newClient();
         this.base = client.target(baseUrl);
     }

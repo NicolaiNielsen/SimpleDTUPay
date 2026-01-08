@@ -1,10 +1,11 @@
-package dtu;
+package dtu.model;
 
-public class Customer {
+public class Merchant {
+
     private String name;
     private String id;
 
-    public Customer() {
+    public Merchant() {
     }
 
     public String getName() {
