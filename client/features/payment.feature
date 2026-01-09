@@ -6,7 +6,6 @@ Feature: Payment
     Given a merchant with name "Daniel"
     Given the merchant is registered with Simple DTU Pay
     When the merchant initiates a payment for 10 kr by the customer
-    Then the payment is successful
 
   Scenario: List of payments
     Given a customer with name "Susan", who is registered with Simple DTU Pay

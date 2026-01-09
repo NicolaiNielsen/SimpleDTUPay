@@ -17,8 +17,7 @@ import dtu.model.Customer;
 public class CustomerServiceClient {
 
     private final Client client;
-    private final WebTarget base; 
-
+    private final WebTarget base;
 
     public CustomerServiceClient() {
         this("http://localhost:8008/customer");
@@ -49,7 +48,6 @@ public class CustomerServiceClient {
                 .request(MediaType.APPLICATION_JSON)
                 .get()) {
             if (r.getStatus() == Response.Status.OK.getStatusCode()) {
-                System.out.println(r.getStatus());
                 return Optional.ofNullable(r.readEntity(Customer.class));
             }
             return Optional.empty();
@@ -59,10 +57,34 @@ public class CustomerServiceClient {
     public Collection<Customer> findAll() {
         try (Response r = base.request(MediaType.APPLICATION_JSON).get()) {
             if (r.getStatus() == Response.Status.OK.getStatusCode()) {
-                List<Customer> customers = r. readEntity(new GenericType<List<Customer>>() {});
+                List<Customer> customers = r.readEntity(new GenericType<List<Customer>>() {
+                });
                 return List.copyOf(customers);
             }
             throw new RuntimeException("Failed to fetch customers: HTTP " + r.getStatus());
         }
+    }
+
+    public Optional<Customer> updateCustomerBankAccount(Customer customer) {
+        try (Response r = base.path(customer.getId()).path("bankaccount")
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(customer, MediaType.APPLICATION_JSON))) {
+            if (r.getStatus() == Response.Status.OK.getStatusCode()) {
+                return Optional.ofNullable(r.readEntity(Customer.class));
+            }
+            return Optional.empty();
+        }
+    }
+
+    public static void main(String[] args) {
+        CustomerServiceClient client = new CustomerServiceClient();
+        Customer customer = new Customer();
+        customer.setFirstName("John");
+        customer.setLastName("Doe");
+        customer.setCPR("123456-7890");
+        customer.setBankAccountId("bank-account-123");
+        String customerId = client.createCustomer(customer.getFirstName(), customer.getLastName(), customer.getCPR());
+        customer.setId(customerId);
+        System.out.println(client.updateCustomerBankAccount(customer));
     }
 }

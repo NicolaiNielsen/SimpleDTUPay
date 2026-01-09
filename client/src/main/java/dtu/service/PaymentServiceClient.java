@@ -31,6 +31,9 @@ public class PaymentServiceClient {
         payment.setCustomerId(customerId);
         payment.setMerchantId(merchantId);
 
+        System.out.println("Initiating payment of " + amount + " kr from customer ID: " + customerId
+                + " to merchant ID: " + merchantId);
+
         try (Response r = base.request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(payment, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == Response.Status.CREATED.getStatusCode()) {
@@ -39,8 +42,8 @@ public class PaymentServiceClient {
             } else {
                 throw new PaymentException(r.readEntity(String.class));
             }
-
         }
+
     }
 
     public Optional<Payment> getPaymentById(String id) {
@@ -96,4 +99,5 @@ public class PaymentServiceClient {
     public String getLastErrorMessage() {
         return lastErrorMessage;
     }
+
 }

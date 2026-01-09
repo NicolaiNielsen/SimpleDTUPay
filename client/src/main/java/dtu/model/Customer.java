@@ -5,6 +5,7 @@ public class Customer {
     private String lastName;
     private String id;
     private String CPR;
+    private String bankAccountId;
 
     public Customer() {
     }
@@ -39,5 +40,13 @@ public class Customer {
 
     public void setCPR(String CPR) {
         this.CPR = CPR;
+    }
+
+    public String getBankAccountId() {
+        return bankAccountId;
+    }
+
+    public void setBankAccountId(String bankAccountId) {
+        this.bankAccountId = bankAccountId;
     }
 }

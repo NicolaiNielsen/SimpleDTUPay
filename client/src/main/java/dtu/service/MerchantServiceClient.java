@@ -1,4 +1,5 @@
 package dtu.service;
+
 import java.util.Optional;
 
 import dtu.model.Customer;
@@ -11,12 +12,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 public class MerchantServiceClient {
-    
 
-    
     private final Client client;
-    private final WebTarget base; 
-
+    private final WebTarget base;
 
     public MerchantServiceClient() {
         this("http://localhost:8080/merchants");
@@ -27,10 +25,31 @@ public class MerchantServiceClient {
         this.base = client.target(baseUrl);
     }
 
+    /**
+     * Test connection to the server
+     * 
+     * @return true if server is reachable, false otherwise
+     */
+    public boolean testConnection() {
+        try (Response r = base.request(MediaType.APPLICATION_JSON).get()) {
+            boolean isConnected = r.getStatus() < 500;
+            if (isConnected) {
+                System.out.println("✓ Successfully connected to Merchant Service");
+            } else {
+                System.err.println("✗ Server error: HTTP " + r.getStatus());
+            }
+            return isConnected;
+        } catch (Exception e) {
+            System.err.println("✗ Failed to connect to Merchant Service: " + e.getMessage());
+            return false;
+        }
+    }
 
-    public String createMerchant(String name) {
+    public String createMerchant(String firstName, String lastName, String CPR) {
         Merchant merchant = new Merchant();
-        merchant.setName(name);
+        merchant.setFirstName(firstName);
+        merchant.setLastName(lastName);
+        merchant.setCPR(CPR);
         try (Response r = base.request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(merchant, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == Response.Status.CREATED.getStatusCode()) {
@@ -51,6 +70,15 @@ public class MerchantServiceClient {
         }
     }
 
-    
+    public Optional<Merchant> updateMerchantBankAccount(String id, Merchant merchant) {
+        try (Response r = base.path(id).path("bankaccount")
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(merchant, MediaType.APPLICATION_JSON))) {
+            if (r.getStatus() == Response.Status.OK.getStatusCode()) {
+                return Optional.ofNullable(r.readEntity(Merchant.class));
+            }
+            return Optional.empty();
+        }
+    }
 
 }
